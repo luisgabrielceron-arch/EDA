@@ -53,18 +53,21 @@ print(df[['Age', 'Bag weight', 'Screen time after school']].describe())
 
 #---------------------------------------ANALÍSIS BIVARIADO---------------------------------------
 
-# Esto cruzará Edad, Peso de mochila y Tiempo de pantalla entre sí
-sns.pairplot(df[['Age', 'Bag weight', 'Screen time after school']])
-plt.show()
+# Creamos el gráfico de caja
+plt.figure(figsize=(10, 6))
+sns.boxplot(
+    data=df, 
+    x='Travel method to school', 
+    y='Bag weight', 
+    palette='Set2'
+)
 
-# Calculamos la correlación y la redondeamos a 2 decimales
-correlacion = df[['Age', 'Bag weight', 'Screen time after school']].corr().round(2)
-print(correlacion)
+# Títulos y etiquetas claras
+plt.title('Comparación del Peso de la Mochila según el Método de Transporte', fontsize=14)
+plt.xlabel('Método de Transporte', fontsize=12)
+plt.ylabel('Peso de la Mochila (kg)', fontsize=12)
+plt.grid(axis='y', linestyle='--', alpha=0.6)
 
-#Mapa de calor 
-plt.figure(figsize=(8, 6))
-sns.heatmap(correlacion, annot=True, cmap='coolwarm', vmin=-1, vmax=1)
-plt.title('Mapa de Correlación')
 plt.show()
 
 # Relación entre Tiempo de pantalla tras el colegio y la Edad
@@ -95,3 +98,90 @@ correlacion_edad_pantalla = df['Age'].corr(df['Screen time after school'])
 # Imprimimos el resultado redondeado a 2 decimales
 print(f"La correlación entre Edad y Tiempo de pantalla es: {correlacion_edad_pantalla:.2f}")
 
+
+#-----------------CALCULO ENCUESTA ESTUDIANTES 11 12 13 SOBRE DROGAS------------------
+
+# Cargar los datos (asegúrate de que los archivos estén en la misma carpeta que tu código)
+df_respuestas = pd.read_csv('year11_13_responses_30b.csv')
+df_no_respuestas = pd.read_csv('year11_13_no_responses_30b.csv')
+
+# Filtrar para asegurar que solo trabajamos con Years 11, 12 y 13
+anios_deseados = ['Year 11', 'Year 12', 'Year 13']
+df_respuestas = df_respuestas[df_respuestas['Year categorical'].isin(anios_deseados)]
+df_no_respuestas = df_no_respuestas[df_no_respuestas['Year categorical'].isin(anios_deseados)]
+
+# Nombres exactos de las columnas de la encuesta (según tu dataset)
+col_30a = 'How true: I get carried away by my feelings'
+col_30b = 'How true: I say the first thing that comes into my mind without thinking enough about it'
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# 1. Cargar el archivo de los que SÍ respondieron
+df = pd.read_csv('year11_13_responses_30b.csv')
+
+# Filtrar solo Years 11, 12 y 13
+anios = ['Year 11', 'Year 12', 'Year 13']
+df = df[df['Year categorical'].isin(anios)]
+
+# Columnas exactas de la pregunta 30A (Estudiantes)
+cols_30a = [
+    'How wrong - Drink alcohol',
+    'How wrong - Smoke tobacco cigarettes',
+    'How wrong - Smoke e-cigarettes',
+    'How wrong - Smoke marijuana'
+]
+
+# Transformar los datos para graficarlos fácil
+df_30a = df[['Year categorical'] + cols_30a].melt(
+    id_vars='Year categorical', 
+    var_name='Sustancia', 
+    value_name='Nivel de Desaprobación'
+)
+
+# Limpiar los nombres de las columnas para que el gráfico quede más bonito
+df_30a['Sustancia'] = df_30a['Sustancia'].str.replace('How wrong - ', '')
+
+# 2. Crear el Gráfico
+plt.figure(figsize=(10, 6))
+sns.barplot(data=df_30a, x='Sustancia', y='Nivel de Desaprobación', hue='Year categorical', order=['Drink alcohol', 'Smoke tobacco cigarettes', 'Smoke e-cigarettes', 'Smoke marijuana'], hue_order=anios, palette='mako')
+
+plt.title('Pregunta 30A: ¿Qué tan incorrecto ves que alguien de tu edad consuma...? (Puntaje Promedio)', fontsize=14)
+plt.xlabel('Tipo de Sustancia', fontsize=12)
+plt.ylabel('Nivel de Desaprobación\n(-100 = Nada, 100 = Muy incorrecto)', fontsize=12)
+plt.legend(title='Año Escolar')
+plt.grid(axis='y', linestyle='--', alpha=0.6)
+
+plt.show()
+
+
+# Columnas exactas de la pregunta 30B (Padres)
+cols_30b = [
+    'How wrong (caregivers/parents) - Drink alcohol',
+    'How wrong (caregivers/parents) - Smoke tobacco cigarettes',
+    'How wrong (caregivers/parents) - Smoke e-cigarettes',
+    'How wrong (caregivers/parents) - Smoke marijuana'
+]
+
+# Transformar los datos
+df_30b = df[['Year categorical'] + cols_30b].melt(
+    id_vars='Year categorical', 
+    var_name='Sustancia', 
+    value_name='Nivel de Desaprobación'
+)
+
+# Limpiar los nombres
+df_30b['Sustancia'] = df_30b['Sustancia'].str.replace('How wrong (caregivers/parents) - ', '', regex=False)
+
+# Crear el Gráfico
+plt.figure(figsize=(10, 6))
+sns.barplot(data=df_30b, x='Sustancia', y='Nivel de Desaprobación', hue='Year categorical', order=['Drink alcohol', 'Smoke tobacco cigarettes', 'Smoke e-cigarettes', 'Smoke marijuana'], hue_order=anios, palette='rocket')
+
+plt.title('Pregunta 30B: ¿Qué tan incorrecto creen tus padres que sería si tú consumieras...? (Puntaje Promedio)', fontsize=14)
+plt.xlabel('Tipo de Sustancia', fontsize=12)
+plt.ylabel('Nivel de Desaprobación\n(-100 = Nada, 100 = Muy incorrecto)', fontsize=12)
+plt.legend(title='Año Escolar', loc='lower right')
+plt.grid(axis='y', linestyle='--', alpha=0.6)
+
+plt.show()
