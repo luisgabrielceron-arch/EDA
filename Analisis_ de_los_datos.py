@@ -75,17 +75,20 @@ plt.show()
 # Gráfico de dispersión con una línea de tendencia
 plt.figure(figsize=(9, 6))
 
-# Creamos el gráfico de dispersión con línea de tendencia
+# Creamos el gráfico de dispersión con línea de tendencia Y JITTER
 sns.regplot(data=df, 
             x='Age', 
             y='Screen time after school', 
-            scatter_kws={'alpha':0.5}, # Puntos un poco transparentes
-            line_kws={'color':'red'})  # Línea de tendencia en rojo para que resalte
+            x_jitter=0.3,  # <--- ESTA ES LA MAGIA: Separa los puntos horizontalmente
+            y_jitter=0.1,  # <--- Separa un poquito los puntos verticalmente
+            scatter_kws={'alpha': 0.4, 'color': 'steelblue'}, # Puntos más transparentes y azules
+            line_kws={'color': 'red', 'linewidth': 2})  # Línea de tendencia en rojo
 
 # Personalizamos los textos
 plt.title('Relación entre Edad y Tiempo de Pantalla después de la escuela', fontsize=14)
 plt.xlabel('Edad (Años)', fontsize=12)
 plt.ylabel('Tiempo de pantalla (Horas)', fontsize=12)
+plt.grid(True, linestyle='--', alpha=0.5) # Una cuadrícula de fondo ayuda a leer mejor
 
 # Mostramos el gráfico
 plt.show()
